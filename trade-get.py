@@ -1,22 +1,31 @@
 # -*- coding: utf-8 -*-
-
+"""
+用法：
+1.下载ExportOrderList$timestamp.csv,ExportOrderDetailList$timestamp.csv
+2.python trade-get.py $timestamp/trade-get.exe $timestamp
+3.生成result$timestamp.csv即是最后结果
+4.打包命令：pyinstaller -F -c trade-get.py --hidden-import=pandas._libs.tslibs.np_datetime --hidden-import=pandas._libs.tslibs.
+nattype --hidden-import=pandas._libs.skiplist
+"""
 import os
 import pandas
 from subprocess import Popen
 import sys
-import time
+
+# import time
 
 EXCEL_PATH = "\"C:\Program Files (x86)\Office2007\EXCEL.EXE\""
 
 
 def main(argv):
     if not argv or len(argv) != 2:
-        print "usage:python %s %s" % (__file__, '"2018-05-27 18:56:13"')
+        print "usage:python %s timestr" % __file__
         return
-    timestamp = time.mktime(time.strptime(argv[1], '%Y-%m-%d %H:%M:%S'))
-
-    timestr = time.strftime("%Y%m%d%H%M", time.localtime(round(timestamp / 60) * 60))
-    print timestr
+    # timestamp = time.mktime(time.strptime(argv[1], '%Y-%m-%d %H:%M:%S'))
+    #
+    # timestr = time.strftime("%Y%m%d%H%M", time.localtime(round(timestamp / 60) * 60))
+    # print timestr
+    timestr = argv[1]
     exportOrderListPath = os.path.join("taobao", "ExportOrderList%s.csv" % timestr)
     exportOrderDetailListPath = os.path.join("taobao", "ExportOrderDetailList%s.csv" % timestr)
     resultPath = "result%s.csv" % timestr
