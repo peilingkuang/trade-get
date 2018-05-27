@@ -6,11 +6,12 @@ import os
 
 
 def main(argv):
-    if not argv or len(argv) != 3:
-        print "usage:%s ExportOrderList.csv ExportOrderDetailList.csv" % __file__
+    if not argv or len(argv) != 2:
+        print "usage:%s %s" % __file__, "201805192216"
         return
-    exportOrderListPath = argv[1]
-    exportOrderDetailListPath = argv[2]
+    exportOrderListPath = "ExportOrderList%s.csv" % argv[1]
+    exportOrderDetailListPath = "ExportOrderDetailList%s.csv" % argv[1]
+    resultPath = "result%s.csv" % argv[1]
 
     if not os.path.exists(exportOrderDetailListPath) or not os.path.exists(exportOrderListPath):
         print "can not find file %s or %s" % (exportOrderListPath, exportOrderDetailListPath)
@@ -37,6 +38,10 @@ def main(argv):
                           names=["订单编号", "标题", "价格", "购买数量", "外部系统编号", "商品属性", "套餐信息", "备注", "订单状态", "商家编码"])
 
     detail_list = df2.ix[:, ["订单编号", "商品属性", "购买数量", "订单状态", "标题"]]
+
+    # 过滤订单关闭的
+    # detail_list(True-df["订单状态"].isin(["交易关闭"]))
+    detail_list = detail_list[detail_list["订单状态"] != u"交易关闭"]
     detail_list["拣货"] = '(' + detail_list["商品属性"].map(unicode) + '*' + detail_list["购买数量"].map(unicode) + ')'
     detail_list.drop(detail_list.columns[[1, 2]], axis=1, inplace=True)
     detail_list = detail_list.groupby("订单编号").aggregate(lambda x: '\n'.join(list(x)))
@@ -48,7 +53,8 @@ def main(argv):
     out = out_list.groupby("买家会员名").aggregate(lambda x: set(x))
     out = out.sort_values(by="订单付款时间 ")
     columns = ["收货人信息", "拣货", "买家留言", "订单备注", "订单状态", "标题", "买家实际支付金额", "订单编号", "修改后的收货地址", "订单付款时间 ", "异常信息"]
-    out.to_csv("result.csv", encoding="gbk", columns=columns)
+
+    out.to_csv(resultPath, encoding="gbk", columns=columns)
 
     # out.reindex("订单付款时间 ")
     # columns = ["收货人信息", "拣货", "买家留言", "订单备注", "买家会员名", "买家实际支付金额", "订单编号", "修改后的收货地址", "异常信息"]
